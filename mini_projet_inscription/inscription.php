@@ -1,7 +1,10 @@
 <?php
 
+    session_start();
 
-session_start();
+    $nomErr = "";
+    $emailErr = "";
+    $passwordErr = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -9,33 +12,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
 
-
+  
     if (empty($nom)) {
-        echo "Erreur, nom vide <br>";
-    } else {
-        echo "Nom valide" . htmlspecialchars($nom) . "<br>";
+        $nomErr = "Erreur, nom vide <br>";
     }
 
+
     if (empty($email)) {
-        echo "Erreur : email vide. <br>";
+        $emailErr = "Erreur : email vide. <br>";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "Email invalide <br> ";
-    } else {
-        echo "Email valide : " . htmlspecialchars($email) . "<br>";
+        $emailErr = "Email invalide <br> ";
     }
 
 
     if (empty($password)) {
-        echo "Erreur rentre un mot de passe <br>";
+        $passwordErr = "Erreur rentre un mot de passe <br>";
     } elseif (strlen($password) < 8) {
+        $passwordErr = "Erreur : Le mot de passe doit contenir au moins 8 caracteres <br>";
+    } 
 
-        echo "Erreur : Le mot de passe doit contenir au moins 8 caracteres";
-    } else {
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        echo "mot de passe ok <br>";
+    if ( !empty($nom) && !empty($email) ){
+        $_SESSION['user'] = $nom;
+        $_SESSION['email'] = $email;
+
+        header("Location: profil.php");
+        exit;
     }
-}
 
+}
 ?>
 
 <!DOCTYPE html>
@@ -56,13 +60,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Vous aller vous inscrir à : " . $_GET['event'];
     }
     ?>
-    <form methode="post">
-        Votre nom : <input type="text" name="nom" required>
+    <form method="post">
+        <label for="nom"> Votre nom :</label>
         <br>
-        Email : <input type="email" name="email" required>
+        <input type="text" name="nom" >
+        <p><?= $nomErr ?></p>
+     
+        <label for="email"> Email :</label> 
         <br>
-        Mot de passe : <input type="password" name="password" required>
+        <input type="email" name="email" >
+        <p><?= $emailErr ?></p>
+     
+        <label for="password"> Mot de passe :</label> 
         <br>
+        <input type="password" name="password" >
+        <p><?= $passwordErr ?></p>
+        
         <button type="submit">Inscription</button>
     </form>
 </body>
